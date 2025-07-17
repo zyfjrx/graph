@@ -67,6 +67,8 @@ class Trainer:
         self.scaler = torch.GradScaler(device=self.device.type, enabled=self.config.enable_amp)
 
     def train(self):
+        # 加载checkpoint
+        self._load_checkpoint()
         # 获取数据集
         dataloader = self._get_dataloader(type='train')
         # 训练
@@ -132,7 +134,7 @@ class Trainer:
         input_ids = batch['input_ids'].to(self.device)
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
-        with torch.autocast(device_type=self.device.type, dtype=torch.float16,enabled=self.config.enable_amp):
+        with torch.autocast(device_type=self.device.type, dtype=torch.float16, enabled=self.config.enable_amp):
             outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
             loss = outputs['loss']
         self.scaler.scale(loss).backward()
@@ -200,37 +202,10 @@ class Trainer:
                 return False
 
 
-if __name__ == '__main__':
-    model = SpellCheckBert()
-    dataset_dict = load_from_disk(str(config.DATA_DIR / 'spell_check/processed/bert'))
-    training_config = TrainingConfig(output_dir=config.CHECKPOINT_DIR / 'spell_check_bert',
-                                     logs_dir=Path('/Users/zhangyf/PycharmProjects/nlp/graph/logs'),
-                                     log_steps=50,
-                                     save_steps=1000,
-                                     eval_steps=500,
-                                     epochs=30)
-    tokenizer = AutoTokenizer.from_pretrained(config.PRE_TRAINED_DIR)
+class Seq2SeqTrainer(Trainer):
+    def _evaluate_step(self, batch):
+        # 从模型的forward方法中获取loss
 
+        # 从模型的generate方法中获取predictions
 
-    def compute_metrics(predictions, labels):
-        # predictions : [[1,3,5],[2,3,6],[1,2,3],[7,0,9]]
-        # labels :[[1,3,5],[2,4,6],[1,2,3],[7,8,9]]
-        total_count = 0
-        correct_count = 0
-        predictions = tokenizer.batch_decode(predictions, skip_special_tokens=True)
-        labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
-        for pred, label in zip(predictions, labels):
-            if pred == label:
-                correct_count += 1
-            total_count += 1
-        return {'accuracy': correct_count / total_count}
-
-
-    trainer = Trainer(model,
-                      # dataset_dict['train'].select(range(100)),
-                      dataset_dict['train'],
-                      dataset_dict['valid'],
-                      dataset_dict['test'],
-                      training_config,
-                      compute_metrics=compute_metrics)
-    trainer.train()
+        return {'loss': None, 'predictions': None}

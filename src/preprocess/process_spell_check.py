@@ -40,4 +40,4 @@ def process_data(model, save_path):
 
 
 if __name__ == '__main__':
-    process_data(model='/Users/zhangyf/llm/bert-base-chinese', save_path=config.DATA_DIR / "spell_check" / 'bert')
+    process_data(model='/Users/zhangyf/llm/mengzi-t5-base', save_path=config.DATA_DIR / "spell_check" / 'processed' /'t5')

@@ -30,4 +30,4 @@ if __name__ == '__main__':
     model.load_state_dict(torch.load(config.CHECKPOINT_DIR / 'spell_check_bert' / 'best.pt'))
     tokenizer = AutoTokenizer.from_pretrained("/Users/zhangyf/llm/bert-base-chinese")
     predict = SpellCheckBertPredictor(model, tokenizer,device='cpu')
-    print(predict.predict(['计划规模你部照过七亿元。']))
+    print(predict.predict(['许多迢害着食军人。']))
