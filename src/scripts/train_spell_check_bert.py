@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import torch
 from datasets import load_from_disk
 from transformers import AutoTokenizer
 
@@ -8,6 +9,7 @@ from models.spell_check_bert import SpellCheckBert
 from runner.Trainer import TrainingConfig, Trainer
 
 model = SpellCheckBert()
+model.load_state_dict(torch.load(config.CHECKPOINT_DIR / 'spell_check_bert' / 'best.pt'))
 dataset_dict = load_from_disk(str(config.DATA_DIR / 'spell_check/processed/bert'))
 training_config = TrainingConfig(output_dir=config.CHECKPOINT_DIR / 'spell_check_bert',
                                  logs_dir=Path('/Users/zhangyf/PycharmProjects/nlp/graph/logs'),
@@ -39,4 +41,4 @@ trainer = Trainer(model,
                   dataset_dict['test'],
                   training_config,
                   compute_metrics=compute_metrics)
-trainer.train()
+print(trainer.evaluate())

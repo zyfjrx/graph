@@ -1,13 +1,16 @@
 from pathlib import Path
 
+import torch
 from datasets import load_from_disk
 from transformers import AutoTokenizer
 
 from configs import config
 from models.spell_check_t5 import SpellCheckT5
-from runner.Trainer import TrainingConfig, Trainer
+from runner.Trainer import TrainingConfig, Seq2SeqTrainer
 
 model = SpellCheckT5()
+model.load_state_dict(torch.load(config.CHECKPOINT_DIR / 'spell_check_t5' / 'best.pt'))
+
 dataset_dict = load_from_disk(str(config.DATA_DIR / 'spell_check/processed/t5'))
 training_config = TrainingConfig(output_dir=config.CHECKPOINT_DIR / 'spell_check_t5',
                                  logs_dir=Path('/Users/zhangyf/PycharmProjects/nlp/graph/logs/t5'),
@@ -32,11 +35,12 @@ def compute_metrics(predictions, labels):
     return {'accuracy': correct_count / total_count}
 
 
-trainer = Trainer(model,
+trainer = Seq2SeqTrainer(model,
                   # dataset_dict['train'].select(range(100)),
                   dataset_dict['train'],
                   dataset_dict['valid'],
                   dataset_dict['test'],
                   training_config,
+                  compute_metrics=compute_metrics
                   )
-trainer.train()
+print(trainer.evaluate())

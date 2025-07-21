@@ -205,7 +205,17 @@ class Trainer:
 class Seq2SeqTrainer(Trainer):
     def _evaluate_step(self, batch):
         # 从模型的forward方法中获取loss
+        input_ids = batch['input_ids'].to(self.device)
+        attention_mask = batch['attention_mask'].to(self.device)
+        labels = batch['labels'].to(self.device)
+        outputs = self.model(input_ids, attention_mask, labels)
+        loss = outputs['loss']
+        result = {'loss': loss}
 
         # 从模型的generate方法中获取predictions
+        if self.compute_metrics is not None:
+            predictions = self.model.generate(input_ids, attention_mask=attention_mask)
+            # predictions.shape[batch_size,seq_len]
+            result['predictions'] = predictions
 
-        return {'loss': None, 'predictions': None}
+        return result
