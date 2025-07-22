@@ -5,7 +5,7 @@ sys.path.insert(0, str(config.EXTERNAL_LIB_DIR / 'uie_pytorch'))
 from uie_predictor import UIEPredictor
 from pprint import pprint
 
-schema = ['商品', '颜色'] # Define the schema for entity extraction
+schema = ['颜色','机身内存','商品'] # Define the schema for entity extraction
 ie = UIEPredictor(model='uie-base', schema=schema,task_path='/Users/zhangyf/PycharmProjects/nlp/graph/pretrained/uie_base_pytorch')
 pprint(ie("小米12S Ultra 骁龙8+旗舰处理器 徕卡光学镜头 2K超视感屏 120Hz高刷 67W快充 8GB+128GB 冷杉绿 5G手机")) # Better print results using pprint
 
